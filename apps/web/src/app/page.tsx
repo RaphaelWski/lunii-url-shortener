@@ -2,8 +2,9 @@
 
 import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import { Button } from "@repo/ui/button";
+import { env } from "../env";
 
-const API_HOST = process.env.NEXT_PUBLIC_API_HOST || "http://localhost:3001";
+const API_HOST = env.api.url || "http://localhost:5555";
 
 export default function Web() {
   const [name, setName] = useState<string>("");
