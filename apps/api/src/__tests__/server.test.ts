@@ -60,4 +60,31 @@ describe("server", () => {
         expect(res.body.error).toBe("invalid URL");
       });
   });
+
+  it("shorturl endpoint increments the number of clicks", async () => {
+    const mockUpdate = prismaMock.shortUrlEntity.update.mockResolvedValue({
+      id: 1,
+      originalUrl: "https://www.google.com",
+      shortUrl: "https://short.url/abc123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      nbClicks: 0,
+    });
+
+    prismaMock.shortUrlEntity.findUnique.mockResolvedValue({
+      id: 1,
+      originalUrl: "https://www.google.com",
+      shortUrl: "https://short.url/abc123",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      nbClicks: 0,
+    });
+
+    await supertest(createServer()).get(`/api/shorturl/abc123`).expect(301);
+
+    expect(mockUpdate).toHaveBeenCalledWith({
+      where: { shortUrl: "abc123" },
+      data: { nbClicks: 1 },
+    });
+  });
 });

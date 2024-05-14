@@ -38,8 +38,11 @@ export default function Web() {
 
   //--------------------------------------------------------------------------------
   const [url, setUrl] = useState<string>("");
-  const [responseUrl, setResponseUrl] = useState<{ originalUrl: string; shortUrl: string } | null>(null);
-  const [errorUrl, setErrorUrl] = useState<{ error: string; } | undefined>();
+  const [responseUrl, setResponseUrl] = useState<{
+    originalUrl: string;
+    shortUrl: string;
+  } | null>(null);
+  const [errorUrl, setErrorUrl] = useState<{ error: string } | undefined>();
 
   useEffect(() => {
     setResponseUrl(null);
@@ -71,6 +74,22 @@ export default function Web() {
   const onResetUrl = () => {
     setUrl("");
   };
+
+  // const openUrl = async (shortUrl: string) => {
+  //   // Construire l'URL complète
+  //   const url = `${API_HOST}/shorturl/${shortUrl}`;
+
+  //   // Faire une requête GET à l'URL
+  //   const response = await fetch(url);
+
+  //   // Vérifier si la requête a réussi
+  //   if (!response.ok) {
+  //     throw new Error(`API request failed: ${response.status}`);
+  //   }
+
+  //   // response is a redirect
+  //   window.location.href = response.url;
+  // };
 
   return (
     <div>
@@ -121,6 +140,17 @@ export default function Web() {
         <div>
           <p>originalUrl: {responseUrl.originalUrl}</p>
           <p>shortUrl: {responseUrl.shortUrl}</p>
+
+          <a
+            href={`${API_HOST}/shorturl/${responseUrl.shortUrl}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            Consulter
+          </a>
+          {/* <Button onClick={() => openUrl(responseUrl.shortUrl)}>
+            Consulter
+          </Button> */}
           <Button onClick={onResetUrl}>Reset</Button>
         </div>
       )}

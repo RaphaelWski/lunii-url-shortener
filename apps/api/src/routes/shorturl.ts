@@ -2,7 +2,11 @@ import { Request, Response } from "express";
 import validator from "validator";
 import prisma from "../prisma/client";
 import { log } from "@repo/logger";
-import { ICreateShortUrlBody, ICreateShortUrlResponse, CustomError } from "../types/types";
+import {
+  ICreateShortUrlBody,
+  ICreateShortUrlResponse,
+  CustomError,
+} from "../types/types";
 
 interface ICreateShortUrlRequest extends Request {
   body: ICreateShortUrlBody;
@@ -55,6 +59,53 @@ export const createShortUrl = async (
     }
 
     log(error);
-    return res.status(500).json(new CustomError({ error: "Internal server error" }));
+    return res
+      .status(500)
+      .json(new CustomError({ error: "Internal server error" }));
+  }
+};
+
+export const handleShortUrl = async (
+  req: Request,
+  res: Response
+): Promise<Response | void> => {
+  try {
+    const { id } = req.params;
+    log(`id = ${id}`);
+
+    const shortUrl = await prisma.shortUrlEntity.findUnique({
+      where: {
+        shortUrl: id,
+      },
+    });
+
+    if (!shortUrl) {
+      throw new CustomError({ error: "Short URL not found" });
+    }
+
+    await prisma.shortUrlEntity.update({
+      where: {
+        shortUrl: id,
+      },
+      data: {
+        nbClicks: shortUrl.nbClicks + 1,
+      },
+    });
+
+    // Définir les en-têtes pour désactiver la mise en cache
+    res.set("Cache-Control", "no-store, no-cache, must-revalidate, private");
+    res.set("Pragma", "no-cache");
+    res.set("Expires", "0");
+
+    return res.redirect(301, shortUrl.originalUrl);
+  } catch (error) {
+    if (error instanceof CustomError) {
+      return res.status(400).json(error);
+    }
+
+    log(error);
+    return res
+      .status(500)
+      .json(new CustomError({ error: "Internal server error" }));
   }
 };

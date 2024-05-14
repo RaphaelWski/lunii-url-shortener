@@ -3,6 +3,7 @@ import express, { type Express } from "express";
 import morgan from "morgan";
 import cors from "cors";
 import router from "./routes/router";
+import { env } from "./env";
 
 export const createServer = (): Express => {
   const app = express();
@@ -11,7 +12,7 @@ export const createServer = (): Express => {
     .use(morgan("dev"))
     .use(urlencoded({ extended: true }))
     .use(json())
-    .use(cors())
+    .use(cors({ origin: env.app.url }))
     .use("/api", router);
 
   return app;
