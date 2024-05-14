@@ -10,4 +10,5 @@ module.exports = {
     "<rootDir>/dist",
   ],
   preset: "ts-jest",
+  setupFilesAfterEnv: ['<rootDir>/src/prisma/singleton.ts'],
 };
