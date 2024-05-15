@@ -14,3 +14,9 @@ export class CustomError {
     this.error = error;
   }
 }
+
+export interface ShortUrlAnalyticsResponse {
+  originalUrl: string;
+  shortUrl: string;
+  nbClicks: number;
+}

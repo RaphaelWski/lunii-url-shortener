@@ -91,6 +91,45 @@ export default function Web() {
   //   window.location.href = response.url;
   // };
 
+  // ---------------------------------------------------------------------------
+  // Ajoutez un nouvel état pour les données d'analyse
+  const [analyticsData, setAnalyticsData] = useState<
+    Array<{ originalUrl: string; shortUrl: string; nbClicks: number }>
+  >([]);
+
+  const loadAnalyticsData = async () => {
+    try {
+      const response = await fetch(`${API_HOST}/shorturl/analytics`, {
+        method: "GET",
+        headers: {
+          "Cache-Control": "no-cache",
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to load analytics data");
+      }
+      const data = await response.json();
+      setAnalyticsData(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+    loadAnalyticsData();
+  }, []);
+
+  const handleConsult = async (shortUrl: string) => {
+    // Rediriger vers l'URL courte
+    window.open(
+      `${API_HOST}/shorturl/${shortUrl}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+
+    // Recharger les données
+    await loadAnalyticsData();
+  };
   return (
     <div>
       <h1>Web</h1>
@@ -154,6 +193,33 @@ export default function Web() {
           <Button onClick={onResetUrl}>Reset</Button>
         </div>
       )}
+      <br />
+      <table>
+        <thead>
+          <tr>
+            <th>URL originale</th>
+            <th>URL courte</th>
+            <th>Nombre de clics</th>
+            <th>Consulter</th>
+          </tr>
+        </thead>
+        <tbody>
+          {analyticsData
+            .sort((a, b) => a.shortUrl.localeCompare(b.shortUrl))
+            .map(({ originalUrl, shortUrl, nbClicks }) => (
+              <tr key={shortUrl}>
+                <td>{originalUrl}</td>
+                <td>{shortUrl}</td>
+                <td>{nbClicks}</td>
+                <td>
+                  <button onClick={() => handleConsult(shortUrl)}>
+                    Consulter
+                  </button>
+                </td>
+              </tr>
+            ))}
+        </tbody>
+      </table>
     </div>
   );
 }

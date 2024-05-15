@@ -6,6 +6,7 @@ import {
   ICreateShortUrlBody,
   ICreateShortUrlResponse,
   CustomError,
+  ShortUrlAnalyticsResponse,
 } from "../types/types";
 
 interface ICreateShortUrlRequest extends Request {
@@ -103,6 +104,29 @@ export const handleShortUrl = async (
       return res.status(400).json(error);
     }
 
+    log(error);
+    return res
+      .status(500)
+      .json(new CustomError({ error: "Internal server error" }));
+  }
+};
+
+export const handleShortUrlAnalytics = async (
+  req: Request,
+  res: Response
+): Promise<Response<Array<ShortUrlAnalyticsResponse>> | void> => {
+  try {
+    const shortUrls = await prisma.shortUrlEntity.findMany();
+
+    log(`shortUrls = ${JSON.stringify(shortUrls)}`);
+    return res.json(
+      shortUrls.map((shortUrl) => ({
+        originalUrl: shortUrl.originalUrl,
+        shortUrl: shortUrl.shortUrl,
+        nbClicks: shortUrl.nbClicks,
+      }))
+    );
+  } catch (error) {
     log(error);
     return res
       .status(500)
