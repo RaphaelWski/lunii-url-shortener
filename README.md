@@ -58,6 +58,13 @@ cd apps/web
 pnpm run dev
 ```
 
+### Lancer les tests
+
+```sh
+cd apps/api
+pnpm run test
+```
+
 ## What's inside?
 
 This Turborepo includes the following:
